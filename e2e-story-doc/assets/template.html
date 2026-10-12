@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>איך זה עובד מקצה לקצה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F3F6F8;
+  --surface: #FFFFFF;
+  --ink: #172235;
+  --muted: #5A6778;
+  --line: #D5DCE3;
+  --accent: #0B6E84;
+  --ok: #2F7D4F;
+  --warn: #A35A12;
+  --sys-1: #0B6E84; --sys-2: #6A4C93; --sys-3: #2F7D4F; --sys-4: #A35A12; --sys-5: #8A2F4A; --sys-6: #3D5A99;
+  --serif: "Frank Ruhl Libre", "David", "Times New Roman", serif;
+  --sans: "IBM Plex Sans Hebrew", "Segoe UI", Arial, sans-serif;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11161D; --surface: #19202A; --ink: #E6EBF1; --muted: #9AA7B6; --line: #2B3542;
+    --accent: #4FB3C8; --ok: #6CC08E; --warn: #E0A15A;
+    --sys-1: #4FB3C8; --sys-2: #B49AE0; --sys-3: #6CC08E; --sys-4: #E0A15A; --sys-5: #E07A98; --sys-6: #8FA8E8;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11161D; --surface: #19202A; --ink: #E6EBF1; --muted: #9AA7B6; --line: #2B3542;
+  --accent: #4FB3C8; --ok: #6CC08E; --warn: #E0A15A;
+  --sys-1: #4FB3C8; --sys-2: #B49AE0; --sys-3: #6CC08E; --sys-4: #E0A15A; --sys-5: #E07A98; --sys-6: #8FA8E8;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--sans); font-size: 17px; line-height: 1.7;
+}
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 22px 80px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.25; margin: 0; }
+
+/* Header */
+header.doc { padding: 56px 0 28px; border-bottom: 1px solid var(--line); }
+header.doc h1 { font-size: clamp(2rem, 6vw, 3.1rem); }
+header.doc .lead { font-size: 1.15rem; color: var(--muted); margin: 12px 0 0; max-width: 62ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 20px; font-size: .92rem; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+.notice { margin-top: 20px; padding: 10px 14px; border-inline-start: 3px solid var(--warn); background: var(--surface); font-size: .95rem; }
+
+/* Overview */
+.overview { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; padding: 32px 0; border-bottom: 1px solid var(--line); }
+.overview h2 { font-size: 1.25rem; margin-bottom: 12px; }
+.toc { list-style: none; padding: 0; margin: 0; }
+.toc li { padding: 8px 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 10px; }
+.toc a { color: var(--ink); text-decoration: none; font-weight: 500; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); text-decoration: underline; }
+.toc .count { color: var(--muted); font-size: .88rem; white-space: nowrap; }
+.glossary { margin: 0; }
+.glossary div { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.glossary dt { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.glossary dd { margin: 2px 0 0; color: var(--muted); font-size: .95rem; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+
+/* Service */
+section.service { padding: 48px 0 8px; border-bottom: 1px solid var(--line); }
+.service h2 { font-size: clamp(1.6rem, 4.5vw, 2.1rem); }
+.service .summary { font-size: 1.12rem; margin: 10px 0 0; max-width: 62ch; }
+.service .who { color: var(--muted); margin: 6px 0 0; font-size: .95rem; }
+.service h3 { font-size: 1.2rem; margin: 36px 0 14px; }
+
+/* The journey — the signature element */
+.journey { list-style: none; margin: 0; padding: 0; position: relative; counter-reset: step; }
+.journey::before {
+  content: ""; position: absolute; top: 14px; bottom: 14px; inset-inline-start: 15px;
+  width: 2px; background: var(--line);
+}
+.journey li { position: relative; padding: 0 48px 26px 0; counter-increment: step; }
+.journey li:last-child { padding-bottom: 0; }
+.journey li::before {
+  content: counter(step); position: absolute; inset-inline-start: 0; top: 0;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--surface); border: 2px solid var(--c, var(--muted)); color: var(--c, var(--muted));
+  font-weight: 600; font-size: .9rem; display: grid; place-items: center;
+}
+.journey .sys {
+  display: inline-block; font-size: .82rem; font-weight: 600; color: var(--c);
+  border: 1px solid var(--c); border-radius: 4px; padding: 0 8px; margin-bottom: 4px;
+}
+.journey p { margin: 0; max-width: 64ch; }
+
+/* Problems */
+.problems { margin: 0; }
+.problems div { display: grid; grid-template-columns: minmax(150px, 1fr) 2fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+.problems div:last-child { border-bottom: 1px solid var(--line); }
+.problems dt { font-weight: 600; }
+.problems dd { margin: 0; color: var(--ink); }
+
+/* Checklist */
+.checks-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 36px 0 14px; }
+.checks-head h3 { margin: 0; }
+.progress { font-size: .9rem; color: var(--muted); }
+.progress.done { color: var(--ok); font-weight: 600; }
+.checks { list-style: none; padding: 0; margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.checks li + li { border-top: 1px solid var(--line); }
+.checks label { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding: 12px 16px; cursor: pointer; }
+.checks input { width: 18px; height: 18px; margin-top: 5px; accent-color: var(--ok); }
+.checks input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.checks .try { font-weight: 500; }
+.checks .expect { display: block; color: var(--muted); font-size: .95rem; }
+.checks input:checked ~ span .try { text-decoration: line-through; color: var(--muted); }
+
+/* Developer details */
+details.tech { margin: 28px 0 32px; font-size: .92rem; color: var(--muted); }
+details.tech summary { cursor: pointer; font-weight: 500; }
+details.tech summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+details.tech .inner { margin-top: 10px; overflow-x: auto; }
+details.tech code { font-family: ui-monospace, Consolas, monospace; direction: ltr; unicode-bidi: embed; background: var(--surface); padding: 1px 6px; border-radius: 3px; border: 1px solid var(--line); }
+details.tech ul { margin: 6px 0 0; padding-inline-start: 20px; }
+
+/* Open questions */
+.open { padding: 40px 0 0; }
+.open h2 { font-size: 1.4rem; }
+.open ul { padding-inline-start: 20px; margin: 12px 0 0; }
+.open li { margin-bottom: 6px; }
+
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .overview { grid-template-columns: 1fr; }
+  .problems div { grid-template-columns: 1fr; gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print {
+  body { background: #fff; color: #000; }
+  details.tech { display: block; }
+  details.tech .inner { display: block; }
+  section.service { break-inside: avoid-page; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ===== Fill this object. Everything on the page comes from here. ===== */
+const DOC = {
+  project: "שירותי פוליסות לשותפים",
+  lead: "מה קורה מאחורי הקלעים בכל שירות, צעד אחרי צעד. המסמך נכתב לצוותי בדיקות ולשותפים חיצוניים, בלי צורך בידע טכני.",
+  updated: "12 באוקטובר 2026",
+  audience: "צוות QA ושותפים חיצוניים",
+  notice: "זה מסמך לדוגמה. השמות, השירותים והתהליכים מומצאים.",
+  systems: [
+    { id: "gateway", name: "שער הכניסה", plain: "הנקודה שדרכה כל שותף נכנס. היא מוודאת שהשותף מוכר ושמותר לו לבצע את הפעולה." },
+    { id: "policies", name: "מאגר הפוליסות", plain: "המקום שבו שמורים פרטי הפוליסות העדכניים." },
+    { id: "legacy", name: "המערכת הוותיקה", plain: "מערכת ישנה שעדיין מחזיקה חלק מהמידע, בעיקר פוליסות ישנות ודואר יוצא." },
+    { id: "audit", name: "יומן הפעולות", plain: "רישום של כל פעולה, כדי שאפשר יהיה לבדוק בדיעבד מה קרה ומתי." },
+    { id: "sms", name: "שירות ההודעות", plain: "שולח למבוטח הודעת SMS כשמשהו בפוליסה שלו משתנה." }
+  ],
+  services: [
+    {
+      id: "policy-lookup",
+      title: "בדיקת פרטי פוליסה",
+      summary: "שותף רוצה לדעת אם לקוח מבוטח, ובאיזה כיסוי.",
+      callers: "סוכנויות ביטוח ומוסכי הסדר",
+      steps: [
+        { system: "gateway", text: "השותף שולח מספר פוליסה ומספר תעודת זהות של המבוטח. שער הכניסה בודק שהשותף מחובר ושמותר לו לראות פוליסות." },
+        { system: "policies", text: "המערכת מחפשת את הפוליסה ובודקת שתעודת הזהות שייכת לה. אם לא, היא עוצרת כאן, כדי ששותף לא יוכל לנחש מספרים ולראות מידע של אחרים." },
+        { system: "legacy", text: "אם הפוליסה נפתחה לפני 2015, חלק מהפרטים שמורים במערכת הוותיקה, והמערכת משלימה אותם משם." },
+        { system: "audit", text: "הבקשה נרשמת ביומן: מי שאל, על איזו פוליסה ומתי." },
+        { system: null, text: "השותף מקבל בחזרה את סטטוס הפוליסה (פעילה או לא), את סוג הכיסוי ואת תאריך הסיום." }
+      ],
+      problems: [
+        { when: "מספר הפוליסה לא קיים", result: "השותף מקבל הודעה שהפוליסה לא נמצאה, בלי שום מידע נוסף." },
+        { when: "תעודת הזהות לא מתאימה לפוליסה", result: "אותה תשובה בדיוק כמו פוליסה שלא קיימת. זה בכוונה, כדי לא לרמוז שהפוליסה קיימת." },
+        { when: "המערכת הוותיקה לא עונה", result: "השותף מקבל את מה שיש, עם סימון שחלק מהפרטים חסרים כרגע." },
+        { when: "לשותף אין הרשאה", result: "הבקשה נחסמת כבר בכניסה ולא מגיעה למאגר בכלל." }
+      ],
+      checks: [
+        { try: "פוליסה פעילה עם תעודת זהות נכונה", expect: "מתקבלים סטטוס, סוג כיסוי ותאריך סיום." },
+        { try: "פוליסה קיימת עם תעודת זהות של מישהו אחר", expect: "התשובה זהה לתשובה על פוליסה שלא קיימת." },
+        { try: "פוליסה שנפתחה לפני 2015", expect: "מופיעים גם הפרטים מהמערכת הוותיקה." },
+        { try: "המערכת הוותיקה כבויה בסביבת הבדיקות", expect: "מתקבלת תשובה חלקית עם סימון, לא שגיאה כללית." },
+        { try: "אחרי כל אחת מהבדיקות", expect: "יש שורה חדשה ביומן הפעולות." }
+      ],
+      tech: { method: "GET", path: "/partners/policies/:policyId", files: ["policies.controller.ts", "policies.service.ts", "legacy-policy.client.ts"] }
+    },
+    {
+      id: "address-update",
+      title: "עדכון כתובת של מבוטח",
+      summary: "שותף מעדכן את כתובת המגורים של לקוח, למשל אחרי מעבר דירה.",
+      callers: "סוכנויות ביטוח בלבד",
+      steps: [
+        { system: "gateway", text: "השותף שולח מספר פוליסה וכתובת חדשה. שער הכניסה בודק שיש לו הרשאה לעדכן, ולא רק לצפות." },
+        { system: null, text: "המערכת בודקת שהכתובת שלמה: עיר, רחוב ומספר בית. מיקוד הוא לא חובה." },
+        { system: "policies", text: "הכתובת מתעדכנת במאגר הפוליסות. הכתובת הקודמת נשמרת בצד ולא נמחקת." },
+        { system: "legacy", text: "אותו שינוי נשלח גם למערכת הוותיקה, כי מכתבים בדואר עדיין יוצאים משם." },
+        { system: "sms", text: "המבוטח מקבל SMS שהכתובת שלו עודכנה, כדי שידע אם מישהו שינה אותה בלי ידיעתו." },
+        { system: "audit", text: "השינוי נרשם ביומן, כולל הכתובת הישנה והחדשה." }
+      ],
+      problems: [
+        { when: "חסר שדה חובה בכתובת", result: "השותף מקבל הודעה שאומרת איזה שדה חסר. שום דבר לא נשמר." },
+        { when: "המערכת הוותיקה לא עונה", result: "העדכון נשמר במאגר הפוליסות ונכנס לתור. המערכת מנסה שוב מול המערכת הוותיקה כל 10 דקות." },
+        { when: "שליחת ה-SMS נכשלה", result: "העדכון עדיין נחשב מוצלח. הכישלון נרשם ביומן." },
+        { when: "לשותף יש רק הרשאת צפייה", result: "הבקשה נחסמת והכתובת לא משתנה." }
+      ],
+      checks: [
+        { try: "עדכון עם כתובת מלאה", expect: "הכתובת החדשה מופיעה גם במאגר הפוליסות וגם במערכת הוותיקה." },
+        { try: "כתובת בלי מספר בית", expect: "הודעה שאומרת שמספר הבית חסר, והכתובת הישנה נשארת." },
+        { try: "עדכון כשהמערכת הוותיקה כבויה", expect: "העדכון נשמר, ומגיע למערכת הוותיקה עד 10 דקות אחרי שהיא חוזרת." },
+        { try: "אחרי עדכון מוצלח", expect: "המבוטח קיבל SMS." },
+        { try: "שותף עם הרשאת צפייה בלבד", expect: "הבקשה נחסמת." }
+      ],
+      tech: { method: "PATCH", path: "/partners/policies/:policyId/address", files: ["address.controller.ts", "address.service.ts", "retry-queue.ts"] }
+    }
+  ],
+  openQuestions: [
+    "מה קורה כששני שותפים מעדכנים את אותה כתובת באותו רגע? זה לא ברור מהקוד.",
+    "כמה זמן נשמרות כתובות קודמות? לא מצאנו כלל מחיקה בקוד."
+  ]
+};
+/* ===== End of data ===== */
+
+(function () {
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const sysColor = {};
+  DOC.systems.forEach((s, i) => { sysColor[s.id] = `var(--sys-${(i % 6) + 1})`; });
+  const sysName = id => (DOC.systems.find(s => s.id === id) || {}).name || "";
+  const storeKey = "e2e-doc:" + DOC.project;
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(storeKey) || "{}"); } catch (e) { saved = {}; }
+  const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(saved)); } catch (e) {} };
+
+  let html = `
+  <header class="doc">
+    <h1>${esc(DOC.project)}</h1>
+    <p class="lead">${esc(DOC.lead)}</p>
+    <div class="meta">
+      <span>עודכן: <b>${esc(DOC.updated)}</b></span>
+      <span>מיועד ל: <b>${esc(DOC.audience)}</b></span>
+      <span>שירותים: <b>${DOC.services.length}</b></span>
+    </div>
+    ${DOC.notice ? `<div class="notice">${esc(DOC.notice)}</div>` : ""}
+  </header>
+  <div class="overview">
+    <nav aria-label="תוכן עניינים">
+      <h2>השירותים</h2>
+      <ul class="toc">
+        ${DOC.services.map(s => `<li><a href="#${esc(s.id)}">${esc(s.title)}</a><span class="count" data-count="${esc(s.id)}"></span></li>`).join("")}
+      </ul>
+    </nav>
+    <div>
+      <h2>המערכות שמשתתפות</h2>
+      <dl class="glossary">
+        ${DOC.systems.map(s => `<div><dt><span class="dot" style="background:${sysColor[s.id]}"></span>${esc(s.name)}</dt><dd>${esc(s.plain)}</dd></div>`).join("")}
+      </dl>
+    </div>
+  </div>`;
+
+  DOC.services.forEach(s => {
+    html += `
+    <section class="service" id="${esc(s.id)}">
+      <h2>${esc(s.title)}</h2>
+      <p class="summary">${esc(s.summary)}</p>
+      <p class="who">מי משתמש בזה: ${esc(s.callers)}</p>
+
+      <h3>הסיפור</h3>
+      <ol class="journey">
+        ${s.steps.map(st => {
+          const c = st.system ? sysColor[st.system] : "var(--muted)";
+          return `<li style="--c:${c}">${st.system ? `<span class="sys">${esc(sysName(st.system))}</span>` : ""}<p>${esc(st.text)}</p></li>`;
+        }).join("")}
+      </ol>
+
+      <h3>כשמשהו משתבש</h3>
+      <dl class="problems">
+        ${s.problems.map(p => `<div><dt>${esc(p.when)}</dt><dd>${esc(p.result)}</dd></div>`).join("")}
+      </dl>
+
+      <div class="checks-head"><h3>מה לבדוק</h3><span class="progress" data-progress="${esc(s.id)}"></span></div>
+      <ul class="checks">
+        ${s.checks.map((c, i) => {
+          const k = s.id + ":" + i;
+          return `<li><label><input type="checkbox" data-key="${esc(k)}" data-svc="${esc(s.id)}" ${saved[k] ? "checked" : ""}><span><span class="try">${esc(c.try)}</span><span class="expect">התוצאה הצפויה: ${esc(c.expect)}</span></span></label></li>`;
+        }).join("")}
+      </ul>
+
+      ${s.tech ? `<details class="tech"><summary>פרטים לצוות הפיתוח</summary><div class="inner">
+        <div><code>${esc(s.tech.method)} ${esc(s.tech.path)}</code></div>
+        ${s.tech.files && s.tech.files.length ? `<ul>${s.tech.files.map(f => `<li><code>${esc(f)}</code></li>`).join("")}</ul>` : ""}
+      </div></details>` : ""}
+    </section>`;
+  });
+
+  if (DOC.openQuestions && DOC.openQuestions.length) {
+    html += `<div class="open"><h2>שאלות פתוחות</h2><ul>${DOC.openQuestions.map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>`;
+  }
+
+  document.getElementById("app").innerHTML = html;
+
+  const refresh = () => {
+    DOC.services.forEach(s => {
+      const total = s.checks.length;
+      const done = s.checks.filter((_, i) => saved[s.id + ":" + i]).length;
+      const p = document.querySelector(`[data-progress="${s.id}"]`);
+      const t = document.querySelector(`[data-count="${s.id}"]`);
+      const label = done === total ? "הכול נבדק" : `${done} מתוך ${total} נבדקו`;
+      if (p) { p.textContent = label; p.classList.toggle("done", done === total); }
+      if (t) t.textContent = `${done}/${total}`;
+    });
+  };
+  document.querySelectorAll(".checks input").forEach(cb => {
+    cb.addEventListener("change", () => {
+      if (cb.checked) saved[cb.dataset.key] = true; else delete saved[cb.dataset.key];
+      save(); refresh();
+    });
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
