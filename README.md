@@ -4,7 +4,7 @@ Agent skills for Claude and GitHub Copilot.
 
 ## Skills
 
-- **e2e-story-doc** — reads a backend codebase and writes an end-to-end document that explains each service like a story, in plain language, for QA and third-party partners. Output is a styled HTML page.
+- **e2e-story-doc** — deep-dives into one service you name and explains every path it can take (per parameter value): steps, SMS/emails sent, problems and test checks, in plain language. Output is a styled HTML page.
 
 ## How to use
 
